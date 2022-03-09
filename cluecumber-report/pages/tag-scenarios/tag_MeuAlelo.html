@@ -1,0 +1,1192 @@
+
+
+    <!--
+    Copyright 2019 trivago N.V.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+    -->
+    <!DOCTYPE html>
+    <html lang="en">
+    <base href="./../..">
+    <head title="Relatorio de execucao - Tagged Scenarios">
+        <title>Relatorio de execucao - Tagged Scenarios</title>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<meta http-equiv="Content-Security-Policy" content="default-src *  data: blob: 'unsafe-inline' 'unsafe-eval';
+script-src * data: blob: 'unsafe-inline' 'unsafe-eval';
+connect-src * data: blob: 'unsafe-inline';
+img-src * data: blob: 'unsafe-inline';
+frame-src * data: blob: ;
+style-src * data: blob: 'unsafe-inline';
+font-src * data: blob: 'unsafe-inline';"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="description" content="Relatorio de execucao">
+<meta name="author" content="Cluecumber Report Plugin version 2.3.4">
+<link rel="stylesheet" href="css/bootstrap.min.css" type="text/css">
+<link rel="stylesheet" href="css/datatables.min.css">
+<link rel="stylesheet" href="css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="css/jquery.fancybox.min.css"/>
+<link rel="stylesheet" href="css/cluecumber.css" type="text/css">
+<link rel="stylesheet" href="css/cluecumber-custom.css"/>
+<link rel="stylesheet" href="css/cluecumber-additional.css"/>
+<script src="js/jquery.min.js"></script>
+<script src="js/popper.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/datatables.min.js"></script>
+<script src="js/jquery.fancybox.min.js"></script>
+<script src="js/Chart.bundle.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+            // Data tables
+            $('.renderAsDataTable').on('draw.dt', function () {
+                $('[data-toggle="tooltip"]').tooltip();
+            }).DataTable({
+                "oLanguage": {
+                    "sSearch": "Search:"
+                },
+                "pageLength": 25,
+                "responsive": true
+            });
+
+            $('.collapse').on('shown.bs.collapse', function (e) {
+                $(e.target).find("iframe").each(function (index, iframe) {
+                    resizeIframe(iframe);
+                })
+            });
+
+            // Lightbox
+            $("a.grouped_elements").fancybox();
+
+            // Tool tips
+            $('[data-toggle="tooltip"]').tooltip();
+
+            // Chart
+            var canvas = document.getElementById('chart-area');
+            var ctx = canvas.getContext("2d");
+            var chart = new Chart(ctx, {
+  "data": {
+    "labels": [
+      "passed",
+      "failed",
+      "skipped"
+    ],
+    "datasets": [
+      {
+        "data": [
+          41,
+          2,
+          0
+        ],
+        "backgroundColor": [
+          "rgba(40, 167, 69, 1.000)",
+          "rgba(220, 53, 69, 1.000)",
+          "rgba(255, 193, 7, 1.000)"
+        ]
+      }
+    ]
+  },
+  "options": {
+    "events": [
+      "click",
+      "mousemove"
+    ]
+  },
+  "type": "pie"
+});
+
+            var original;
+            if (chart.config.type === "pie") {
+                original = Chart.defaults.pie.legend.onClick;
+            } else {
+                original = Chart.defaults.global.legend.onClick;
+            }
+
+            chart.options.onClick = function (evt, elements) {
+                if (chart.config.type !== "pie") return;
+                chartArea = elements[0];
+                if (chartArea === undefined) return;
+                chartArea.hidden = !chartArea.hidden;
+                chart.update();
+                toggleVisibilityByStatus(chartArea._model.label, !chartArea.hidden)
+            };
+
+            chart.options.legend.onClick = function (evt, label) {
+                original.call(this, evt, label);
+                toggleVisibilityByStatus(label.text, label.hidden);
+            };
+
+            function toggleVisibilityByStatus(statusText, show) {
+                var card = $("#card_" + statusText);
+                if (card !== undefined) {
+                    if (show) {
+                        card.show();
+                    } else {
+                        card.hide();
+                    }
+                }
+
+                var row = $(".table-row-" + statusText);
+                if (row !== undefined) {
+                    if (show) {
+                        row.show();
+                    } else {
+                        row.hide();
+                    }
+                }
+            }
+
+
+            if (false) {
+                $(".btn-outline-secondary[data-cluecumber-item='before-after-hooks-button']").click();
+            }
+            if (false) {
+                $(".btn-outline-secondary[data-cluecumber-item='step-hooks-button']").click();
+            }
+            if (false) {
+                $(".btn-outline-secondary[data-cluecumber-item='doc-strings-button']").click();
+            }
+        }
+    );
+
+    function resizeIframe(iframe) {
+        iframe.style.height = (iframe.contentWindow.document.body.scrollHeight + 25) + 'px';
+    }
+</script>    </head>
+    <body>
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                    <li class="nav-item">
+                                <a class="nav-link " href="index.html">All Scenarios</a>
+                    </li>
+                    <li class="nav-item">
+                                <a class="nav-link " href="pages/scenario-sequence.html">Scenario Sequence</a>
+                    </li>
+                    <li class="nav-item">
+                                <a class="nav-link text-white" href="pages/tag-summary.html">All Tags</a>
+                    </li>
+                    <li class="nav-item">
+                                <a class="nav-link " href="pages/step-summary.html">All Steps</a>
+                    </li>
+                    <li class="nav-item">
+                                <a class="nav-link " href="pages/feature-summary.html">All Features</a>
+                    </li>
+            </ul>
+            <span class="text-light">2021-04-19 17:56:08</span>
+        </div>
+    </nav>
+    <main role="main" class="container">
+        <div class="cluecumber-template">
+            <div class="pb-2 mt-4 mb-2 border-bottom">
+                    <h3>Scenarios Tagged With '@MeuAlelo'</h3>
+            </div>
+
+
+    <div class="row" id="scenario-summary">
+    <div class="col-sm-6  h-auto" data-cluecumber-item="card">
+        <div class="card h-100">
+                <div class="card-header">Scenario Results</div>
+            <div class="card-body">
+    <div id="canvas-holder" class="w-100 text-center" style="min-height: 15rem;" data-cluecumber-item="chart">
+        <canvas id="chart-area" class="w-100"></canvas>
+    </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3  h-auto" data-cluecumber-item="card">
+        <div class="card h-100">
+                <div class="card-header">Test Suite Time</div>
+            <div class="card-body">
+            <ul class="list-group list-group-flush">
+                    <li class="list-group-item" data-cluecumber-item="total-start">
+                        Started on:<br>2021-04-19 17:06:03</li>
+                    <li class="list-group-item" data-cluecumber-item="total-end">
+                        Ended on:<br>2021-04-19 17:56:00</li>
+                <li class="list-group-item" data-cluecumber-item="total-runtime">
+                    Test Runtime:<br>49m 57s 313ms
+                </li>
+            </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3  h-auto" data-cluecumber-item="card">
+        <div class="card h-100">
+                <div class="card-header">Test Suite Summary</div>
+            <div class="card-body">
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item" data-cluecumber-item="scenario-summary">
+                    43         Scenarios
+
+                </li>
+                <li class="list-group-item" data-cluecumber-item="scenario-summary">
+                        <a href="javascript:"
+                           onclick="document.location.hash='anchor-passed';">41
+                            passed</a>     <i class="color-passed cluecumber-icon icon-passed" data-toggle="tooltip"
+       title="passed"><span style="display:none">passed</span></i>
+
+                        <br>
+                        <a href="javascript:"
+                           onclick="document.location.hash='anchor-failed';">2
+                            failed</a>     <i class="color-failed cluecumber-icon icon-failed" data-toggle="tooltip"
+       title="failed"><span style="display:none">failed</span></i>
+
+                        <br>
+                        <a href="javascript:"
+                           onclick="document.location.hash='anchor-skipped';">0
+                            skipped</a>     <i class="color-skipped cluecumber-icon icon-skipped" data-toggle="tooltip"
+       title="skipped"><span style="display:none">skipped</span></i>
+
+                </li>
+            </ul>
+            </div>
+        </div>
+    </div>
+    </div>
+
+
+        <a class="anchor" id="anchor-failed"></a>
+        <div class="row" id="card_failed" data-cluecumber-item="scenario-summary-table">
+            <div class=" col-sm-12">
+                <div class="card">
+
+                            <div class="card-header border-color-failed">
+                                2
+        failed Scenarios
+    <i class="color-failed cluecumber-icon icon-failed" data-toggle="tooltip"
+       title="failed"><span style="display:none">failed</span></i>
+                            </div>
+
+                    <div class="card-body">
+                        <table id="results_failed" class="table table-hover renderAsDataTable">
+                            <thead>
+                            <tr>
+                                <th class="text-left">Feature</th>
+                                <th class="text-left">Scenario</th>
+                                <th>Started</th>
+                                <th>Duration</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+
+
+
+
+
+
+
+                                        <tr class="table-row-failed">
+                                            <td class="text-left">
+                                                <span data-toggle="tooltip" title="  Eu como usuario
+  Quero logar no Meu Alelo
+  Para visualizar meus produtos e suas respectivas informacoes | file:src/test/resources/io/cucumber/Regressivo/login.feature">
+                                                    <a href="pages/feature-scenarios/feature_6.html">Login Meu Alelo</a>
+                                                </span>
+                                            </td>
+                                            <td class="text-left">
+                                                <a href="pages/scenario-detail/scenario_19.html"
+                                                   style="word-break: break-all">Relizar Login com informacoes validas</a>
+                                            </td>
+                                            <td class="text-center small" data-order="2021-04-19T20:17:31.979Z">
+                                                2021-04-19<br>17:17:31
+                                            </td>
+                                            <td class="text-right small"
+                                                data-order="96.996.000.000">
+                                                <span class="nobr">1m 36s 996ms</span>
+                                            </td>
+                                        </tr>
+
+
+
+
+
+
+
+                                        <tr class="table-row-failed">
+                                            <td class="text-left">
+                                                <span data-toggle="tooltip" title="  Eu como usuario
+  Quero validar a troca de senha transacional | file:src/test/resources/io/cucumber/Regressivo/trocaDeSenhaTransacional.feature">
+                                                    <a href="pages/feature-scenarios/feature_13.html">Troca de senha transacional</a>
+                                                </span>
+                                            </td>
+                                            <td class="text-left">
+                                                <a href="pages/scenario-detail/scenario_62.html"
+                                                   style="word-break: break-all">Verificar mensagem de dados invalidos</a>
+                                            </td>
+                                            <td class="text-center small" data-order="2021-04-19T20:48:33.058Z">
+                                                2021-04-19<br>17:48:33
+                                            </td>
+                                            <td class="text-right small"
+                                                data-order="71.852.000.000">
+                                                <span class="nobr">1m 11s 852ms</span>
+                                            </td>
+                                        </tr>
+
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <a class="anchor" id="anchor-passed"></a>
+        <div class="row" id="card_passed" data-cluecumber-item="scenario-summary-table">
+            <div class=" col-sm-12">
+                <div class="card">
+
+                            <div class="card-header border-color-passed">
+                                41
+        passed Scenarios
+    <i class="color-passed cluecumber-icon icon-passed" data-toggle="tooltip"
+       title="passed"><span style="display:none">passed</span></i>
+                            </div>
+
+                    <div class="card-body">
+                        <table id="results_passed" class="table table-hover renderAsDataTable">
+                            <thead>
+                            <tr>
+                                <th class="text-left">Feature</th>
+                                <th class="text-left">Scenario</th>
+                                <th>Started</th>
+                                <th>Duration</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+
+                                        <tr class="table-row-passed">
+                                            <td class="text-left">
+                                                <span data-toggle="tooltip" title="  Eu como usuario
+  Quero alterar a senha do perfil do usuario
+  Para validar se a alteracao foi efetuada corretamente | file:src/test/resources/io/cucumber/Regressivo/alteracaoDeSenha.feature">
+                                                    <a href="pages/feature-scenarios/feature_0.html">Alteracao de Senha</a>
+                                                </span>
+                                            </td>
+                                            <td class="text-left">
+                                                <a href="pages/scenario-detail/scenario_1.html"
+                                                   style="word-break: break-all">Alteracao de Senha - Salvar nova senha</a>
+                                            </td>
+                                            <td class="text-center small" data-order="2021-04-19T20:06:03.276Z">
+                                                2021-04-19<br>17:06:03
+                                            </td>
+                                            <td class="text-right small"
+                                                data-order="34.488.000.000">
+                                                <span class="nobr">0m 34s 488ms</span>
+                                            </td>
+                                        </tr>
+                                        <tr class="table-row-passed">
+                                            <td class="text-left">
+                                                <span data-toggle="tooltip" title="  Eu como usuario
+  Quero alterar a senha do perfil do usuario
+  Para validar se a alteracao foi efetuada corretamente | file:src/test/resources/io/cucumber/Regressivo/alteracaoDeSenha.feature">
+                                                    <a href="pages/feature-scenarios/feature_0.html">Alteracao de Senha</a>
+                                                </span>
+                                            </td>
+                                            <td class="text-left">
+                                                <a href="pages/scenario-detail/scenario_2.html"
+                                                   style="word-break: break-all">Alteracao de Senha - Campos vazios</a>
+                                            </td>
+                                            <td class="text-center small" data-order="2021-04-19T20:06:37.778Z">
+                                                2021-04-19<br>17:06:37
+                                            </td>
+                                            <td class="text-right small"
+                                                data-order="26.267.000.000">
+                                                <span class="nobr">0m 26s 267ms</span>
+                                            </td>
+                                        </tr>
+
+                                        <tr class="table-row-passed">
+                                            <td class="text-left">
+                                                <span data-toggle="tooltip" title="  Eu como usuario
+  Quero alterar os dados do perfil do usuario
+  Para validar se a alteracao foi efetuada corretamente | file:src/test/resources/io/cucumber/Regressivo/alteracaoPerfilDoUsuario.feature">
+                                                    <a href="pages/feature-scenarios/feature_1.html">Alteracao de Perfil do Usuario</a>
+                                                </span>
+                                            </td>
+                                            <td class="text-left">
+                                                <a href="pages/scenario-detail/scenario_3.html"
+                                                   style="word-break: break-all">Alteracao de email perfil do usuario</a>
+                                            </td>
+                                            <td class="text-center small" data-order="2021-04-19T20:07:04.055Z">
+                                                2021-04-19<br>17:07:04
+                                            </td>
+                                            <td class="text-right small"
+                                                data-order="34.091.000.000">
+                                                <span class="nobr">0m 34s 091ms</span>
+                                            </td>
+                                        </tr>
+
+                                        <tr class="table-row-passed">
+                                            <td class="text-left">
+                                                <span data-toggle="tooltip" title="  Eu como usuario
+  Quero cadastrar um usuario no Meu Alelo
+  Para ter acesso aos meus produtos e suas respectivas informacoes | file:src/test/resources/io/cucumber/Regressivo/cadastroMeuAlelo.feature">
+                                                    <a href="pages/feature-scenarios/feature_2.html">Cadastro Meu Alelo</a>
+                                                </span>
+                                            </td>
+                                            <td class="text-left">
+                                                <a href="pages/scenario-detail/scenario_4.html"
+                                                   style="word-break: break-all">Efetuar cadastro de um novo usuario com dados validos</a>
+                                            </td>
+                                            <td class="text-center small" data-order="2021-04-19T20:07:38.155Z">
+                                                2021-04-19<br>17:07:38
+                                            </td>
+                                            <td class="text-right small"
+                                                data-order="36.413.000.000">
+                                                <span class="nobr">0m 36s 413ms</span>
+                                            </td>
+                                        </tr>
+                                        <tr class="table-row-passed">
+                                            <td class="text-left">
+                                                <span data-toggle="tooltip" title="  Eu como usuario
+  Quero cadastrar um usuario no Meu Alelo
+  Para ter acesso aos meus produtos e suas respectivas informacoes | file:src/test/resources/io/cucumber/Regressivo/cadastroMeuAlelo.feature">
+                                                    <a href="pages/feature-scenarios/feature_2.html">Cadastro Meu Alelo</a>
+                                                </span>
+                                            </td>
+                                            <td class="text-left">
+                                                <a href="pages/scenario-detail/scenario_5.html"
+                                                   style="word-break: break-all">Efetuar cadastro de um novo usuario com email invalidos</a>
+                                            </td>
+                                            <td class="text-center small" data-order="2021-04-19T20:08:14.578Z">
+                                                2021-04-19<br>17:08:14
+                                            </td>
+                                            <td class="text-right small"
+                                                data-order="38.104.000.000">
+                                                <span class="nobr">0m 38s 104ms</span>
+                                            </td>
+                                        </tr>
+                                        <tr class="table-row-passed">
+                                            <td class="text-left">
+                                                <span data-toggle="tooltip" title="  Eu como usuario
+  Quero cadastrar um usuario no Meu Alelo
+  Para ter acesso aos meus produtos e suas respectivas informacoes | file:src/test/resources/io/cucumber/Regressivo/cadastroMeuAlelo.feature">
+                                                    <a href="pages/feature-scenarios/feature_2.html">Cadastro Meu Alelo</a>
+                                                </span>
+                                            </td>
+                                            <td class="text-left">
+                                                <a href="pages/scenario-detail/scenario_6.html"
+                                                   style="word-break: break-all">Validar mensagens de erro de CPF e Data de Nascimento</a>
+                                            </td>
+                                            <td class="text-center small" data-order="2021-04-19T20:08:52.692Z">
+                                                2021-04-19<br>17:08:52
+                                            </td>
+                                            <td class="text-right small"
+                                                data-order="36.872.000.000">
+                                                <span class="nobr">0m 36s 872ms</span>
+                                            </td>
+                                        </tr>
+                                        <tr class="table-row-passed">
+                                            <td class="text-left">
+                                                <span data-toggle="tooltip" title="  Eu como usuario
+  Quero cadastrar um usuario no Meu Alelo
+  Para ter acesso aos meus produtos e suas respectivas informacoes | file:src/test/resources/io/cucumber/Regressivo/cadastroMeuAlelo.feature">
+                                                    <a href="pages/feature-scenarios/feature_2.html">Cadastro Meu Alelo</a>
+                                                </span>
+                                            </td>
+                                            <td class="text-left">
+                                                <a href="pages/scenario-detail/scenario_7.html"
+                                                   style="word-break: break-all">Efetuar cadastro com dados de usuario ja existente</a>
+                                            </td>
+                                            <td class="text-center small" data-order="2021-04-19T20:09:29.575Z">
+                                                2021-04-19<br>17:09:29
+                                            </td>
+                                            <td class="text-right small"
+                                                data-order="35.729.000.000">
+                                                <span class="nobr">0m 35s 729ms</span>
+                                            </td>
+                                        </tr>
+
+                                        <tr class="table-row-passed">
+                                            <td class="text-left">
+                                                <span data-toggle="tooltip" title="  Eu como usuario
+  Quero validar o carrossel de cartoes
+  Para validar a visualizacao dos cartoes atraves do carrossel | file:src/test/resources/io/cucumber/Regressivo/carrosselDeCartoes.feature">
+                                                    <a href="pages/feature-scenarios/feature_3.html">Carrosel de Cartoes</a>
+                                                </span>
+                                            </td>
+                                            <td class="text-left">
+                                                <a href="pages/scenario-detail/scenario_8.html"
+                                                   style="word-break: break-all">Validar Listagem de Cartoes – Usuario com Quatro produtos</a>
+                                            </td>
+                                            <td class="text-center small" data-order="2021-04-19T20:10:05.313Z">
+                                                2021-04-19<br>17:10:05
+                                            </td>
+                                            <td class="text-right small"
+                                                data-order="144.322.000.000">
+                                                <span class="nobr">2m 24s 322ms</span>
+                                            </td>
+                                        </tr>
+
+                                        <tr class="table-row-passed">
+                                            <td class="text-left">
+                                                <span data-toggle="tooltip" title="  Eu como usuario do meu alelo
+  Quero acessar a tela do clube alelo
+  Para receber as ofertas do clube alelo | file:src/test/resources/io/cucumber/Regressivo/clubeAlelo.feature">
+                                                    <a href="pages/feature-scenarios/feature_4.html">Clube Alelo</a>
+                                                </span>
+                                            </td>
+                                            <td class="text-left">
+                                                <a href="pages/scenario-detail/scenario_9.html"
+                                                   style="word-break: break-all">Validar direcionamento do botao descontos no clube alelo da tela home</a>
+                                            </td>
+                                            <td class="text-center small" data-order="2021-04-19T20:12:29.644Z">
+                                                2021-04-19<br>17:12:29
+                                            </td>
+                                            <td class="text-right small"
+                                                data-order="60.731.000.000">
+                                                <span class="nobr">1m 00s 731ms</span>
+                                            </td>
+                                        </tr>
+
+
+                                        <tr class="table-row-passed">
+                                            <td class="text-left">
+                                                <span data-toggle="tooltip" title="  Eu como usuario
+  Quero logar no Meu Alelo
+  Para visualizar meus produtos e suas respectivas informacoes | file:src/test/resources/io/cucumber/Regressivo/login.feature">
+                                                    <a href="pages/feature-scenarios/feature_6.html">Login Meu Alelo</a>
+                                                </span>
+                                            </td>
+                                            <td class="text-left">
+                                                <a href="pages/scenario-detail/scenario_20.html"
+                                                   style="word-break: break-all">Realizar Login com senha invalida</a>
+                                            </td>
+                                            <td class="text-center small" data-order="2021-04-19T20:19:08.985Z">
+                                                2021-04-19<br>17:19:08
+                                            </td>
+                                            <td class="text-right small"
+                                                data-order="15.310.000.000">
+                                                <span class="nobr">0m 15s 310ms</span>
+                                            </td>
+                                        </tr>
+                                        <tr class="table-row-passed">
+                                            <td class="text-left">
+                                                <span data-toggle="tooltip" title="  Eu como usuario
+  Quero logar no Meu Alelo
+  Para visualizar meus produtos e suas respectivas informacoes | file:src/test/resources/io/cucumber/Regressivo/login.feature">
+                                                    <a href="pages/feature-scenarios/feature_6.html">Login Meu Alelo</a>
+                                                </span>
+                                            </td>
+                                            <td class="text-left">
+                                                <a href="pages/scenario-detail/scenario_21.html"
+                                                   style="word-break: break-all">Erro CPF Invalido</a>
+                                            </td>
+                                            <td class="text-center small" data-order="2021-04-19T20:19:24.304Z">
+                                                2021-04-19<br>17:19:24
+                                            </td>
+                                            <td class="text-right small"
+                                                data-order="15.057.000.000">
+                                                <span class="nobr">0m 15s 057ms</span>
+                                            </td>
+                                        </tr>
+                                        <tr class="table-row-passed">
+                                            <td class="text-left">
+                                                <span data-toggle="tooltip" title="  Eu como usuario
+  Quero logar no Meu Alelo
+  Para visualizar meus produtos e suas respectivas informacoes | file:src/test/resources/io/cucumber/Regressivo/login.feature">
+                                                    <a href="pages/feature-scenarios/feature_6.html">Login Meu Alelo</a>
+                                                </span>
+                                            </td>
+                                            <td class="text-left">
+                                                <a href="pages/scenario-detail/scenario_22.html"
+                                                   style="word-break: break-all">Erro senha nao preenchida</a>
+                                            </td>
+                                            <td class="text-center small" data-order="2021-04-19T20:19:39.368Z">
+                                                2021-04-19<br>17:19:39
+                                            </td>
+                                            <td class="text-right small"
+                                                data-order="15.489.000.000">
+                                                <span class="nobr">0m 15s 489ms</span>
+                                            </td>
+                                        </tr>
+                                        <tr class="table-row-passed">
+                                            <td class="text-left">
+                                                <span data-toggle="tooltip" title="  Eu como usuario
+  Quero logar no Meu Alelo
+  Para visualizar meus produtos e suas respectivas informacoes | file:src/test/resources/io/cucumber/Regressivo/login.feature">
+                                                    <a href="pages/feature-scenarios/feature_6.html">Login Meu Alelo</a>
+                                                </span>
+                                            </td>
+                                            <td class="text-left">
+                                                <a href="pages/scenario-detail/scenario_23.html"
+                                                   style="word-break: break-all">Erro CPF não cadastrado</a>
+                                            </td>
+                                            <td class="text-center small" data-order="2021-04-19T20:19:54.864Z">
+                                                2021-04-19<br>17:19:54
+                                            </td>
+                                            <td class="text-right small"
+                                                data-order="17.373.000.000">
+                                                <span class="nobr">0m 17s 373ms</span>
+                                            </td>
+                                        </tr>
+                                        <tr class="table-row-passed">
+                                            <td class="text-left">
+                                                <span data-toggle="tooltip" title="  Eu como usuario
+  Quero logar no Meu Alelo
+  Para visualizar meus produtos e suas respectivas informacoes | file:src/test/resources/io/cucumber/Regressivo/login.feature">
+                                                    <a href="pages/feature-scenarios/feature_6.html">Login Meu Alelo</a>
+                                                </span>
+                                            </td>
+                                            <td class="text-left">
+                                                <a href="pages/scenario-detail/scenario_24.html"
+                                                   style="word-break: break-all">Validar ícone de rede de aceitação na home de login</a>
+                                            </td>
+                                            <td class="text-center small" data-order="2021-04-19T20:20:12.246Z">
+                                                2021-04-19<br>17:20:12
+                                            </td>
+                                            <td class="text-right small"
+                                                data-order="18.725.000.000">
+                                                <span class="nobr">0m 18s 725ms</span>
+                                            </td>
+                                        </tr>
+                                        <tr class="table-row-passed">
+                                            <td class="text-left">
+                                                <span data-toggle="tooltip" title="  Eu como usuario
+  Quero logar no Meu Alelo
+  Para visualizar meus produtos e suas respectivas informacoes | file:src/test/resources/io/cucumber/Regressivo/login.feature">
+                                                    <a href="pages/feature-scenarios/feature_6.html">Login Meu Alelo</a>
+                                                </span>
+                                            </td>
+                                            <td class="text-left">
+                                                <a href="pages/scenario-detail/scenario_25.html"
+                                                   style="word-break: break-all">Validar Link FAQ (preciso de ajuda) na tela de login</a>
+                                            </td>
+                                            <td class="text-center small" data-order="2021-04-19T20:20:30.978Z">
+                                                2021-04-19<br>17:20:30
+                                            </td>
+                                            <td class="text-right small"
+                                                data-order="16.002.000.000">
+                                                <span class="nobr">0m 16s 002ms</span>
+                                            </td>
+                                        </tr>
+
+                                        <tr class="table-row-passed">
+                                            <td class="text-left">
+                                                <span data-toggle="tooltip" title="  Eu como usuario do app Meu Alelo
+  Quero poder ver os status dos cartoes | file:src/test/resources/io/cucumber/Regressivo/mensagemCartaoStatus.feature">
+                                                    <a href="pages/feature-scenarios/feature_7.html">Mensagem de Bloqueio Cartoes</a>
+                                                </span>
+                                            </td>
+                                            <td class="text-left">
+                                                <a href="pages/scenario-detail/scenario_26.html"
+                                                   style="word-break: break-all">Validar mensagem de cartão com status W1</a>
+                                            </td>
+                                            <td class="text-center small" data-order="2021-04-19T20:20:46.989Z">
+                                                2021-04-19<br>17:20:46
+                                            </td>
+                                            <td class="text-right small"
+                                                data-order="21.331.000.000">
+                                                <span class="nobr">0m 21s 331ms</span>
+                                            </td>
+                                        </tr>
+                                        <tr class="table-row-passed">
+                                            <td class="text-left">
+                                                <span data-toggle="tooltip" title="  Eu como usuario do app Meu Alelo
+  Quero poder ver os status dos cartoes | file:src/test/resources/io/cucumber/Regressivo/mensagemCartaoStatus.feature">
+                                                    <a href="pages/feature-scenarios/feature_7.html">Mensagem de Bloqueio Cartoes</a>
+                                                </span>
+                                            </td>
+                                            <td class="text-left">
+                                                <a href="pages/scenario-detail/scenario_27.html"
+                                                   style="word-break: break-all">Validar mensagem de cartão com status B1</a>
+                                            </td>
+                                            <td class="text-center small" data-order="2021-04-19T20:21:08.329Z">
+                                                2021-04-19<br>17:21:08
+                                            </td>
+                                            <td class="text-right small"
+                                                data-order="20.721.000.000">
+                                                <span class="nobr">0m 20s 721ms</span>
+                                            </td>
+                                        </tr>
+                                        <tr class="table-row-passed">
+                                            <td class="text-left">
+                                                <span data-toggle="tooltip" title="  Eu como usuario do app Meu Alelo
+  Quero poder ver os status dos cartoes | file:src/test/resources/io/cucumber/Regressivo/mensagemCartaoStatus.feature">
+                                                    <a href="pages/feature-scenarios/feature_7.html">Mensagem de Bloqueio Cartoes</a>
+                                                </span>
+                                            </td>
+                                            <td class="text-left">
+                                                <a href="pages/scenario-detail/scenario_28.html"
+                                                   style="word-break: break-all">Validar mensagem de cartão com status B13</a>
+                                            </td>
+                                            <td class="text-center small" data-order="2021-04-19T20:21:29.057Z">
+                                                2021-04-19<br>17:21:29
+                                            </td>
+                                            <td class="text-right small"
+                                                data-order="29.619.000.000">
+                                                <span class="nobr">0m 29s 619ms</span>
+                                            </td>
+                                        </tr>
+                                        <tr class="table-row-passed">
+                                            <td class="text-left">
+                                                <span data-toggle="tooltip" title="  Eu como usuario do app Meu Alelo
+  Quero poder ver os status dos cartoes | file:src/test/resources/io/cucumber/Regressivo/mensagemCartaoStatus.feature">
+                                                    <a href="pages/feature-scenarios/feature_7.html">Mensagem de Bloqueio Cartoes</a>
+                                                </span>
+                                            </td>
+                                            <td class="text-left">
+                                                <a href="pages/scenario-detail/scenario_29.html"
+                                                   style="word-break: break-all">Validar mensagem de cartão com status B12</a>
+                                            </td>
+                                            <td class="text-center small" data-order="2021-04-19T20:21:58.684Z">
+                                                2021-04-19<br>17:21:58
+                                            </td>
+                                            <td class="text-right small"
+                                                data-order="21.496.000.000">
+                                                <span class="nobr">0m 21s 496ms</span>
+                                            </td>
+                                        </tr>
+
+
+                                        <tr class="table-row-passed">
+                                            <td class="text-left">
+                                                <span data-toggle="tooltip" title="  Eu como usuario do App Meu Alelo
+  Desejo acessar a funcionalidade de pede pronto | file:src/test/resources/io/cucumber/Regressivo/pedePronto.feature">
+                                                    <a href="pages/feature-scenarios/feature_9.html">Pede Pronto</a>
+                                                </span>
+                                            </td>
+                                            <td class="text-left">
+                                                <a href="pages/scenario-detail/scenario_35.html"
+                                                   style="word-break: break-all">Validar layout Pede pronto</a>
+                                            </td>
+                                            <td class="text-center small" data-order="2021-04-19T20:25:28.850Z">
+                                                2021-04-19<br>17:25:28
+                                            </td>
+                                            <td class="text-right small"
+                                                data-order="24.616.000.000">
+                                                <span class="nobr">0m 24s 616ms</span>
+                                            </td>
+                                        </tr>
+                                        <tr class="table-row-passed">
+                                            <td class="text-left">
+                                                <span data-toggle="tooltip" title="  Eu como usuario do App Meu Alelo
+  Desejo acessar a funcionalidade de pede pronto | file:src/test/resources/io/cucumber/Regressivo/pedePronto.feature">
+                                                    <a href="pages/feature-scenarios/feature_9.html">Pede Pronto</a>
+                                                </span>
+                                            </td>
+                                            <td class="text-left">
+                                                <a href="pages/scenario-detail/scenario_36.html"
+                                                   style="word-break: break-all">Validar opção &#39;PERMITIR&#39; na função e &quot;NEGAR&quot; no alerta</a>
+                                            </td>
+                                            <td class="text-center small" data-order="2021-04-19T20:25:53.474Z">
+                                                2021-04-19<br>17:25:53
+                                            </td>
+                                            <td class="text-right small"
+                                                data-order="30.016.000.000">
+                                                <span class="nobr">0m 30s 016ms</span>
+                                            </td>
+                                        </tr>
+                                        <tr class="table-row-passed">
+                                            <td class="text-left">
+                                                <span data-toggle="tooltip" title="  Eu como usuario do App Meu Alelo
+  Desejo acessar a funcionalidade de pede pronto | file:src/test/resources/io/cucumber/Regressivo/pedePronto.feature">
+                                                    <a href="pages/feature-scenarios/feature_9.html">Pede Pronto</a>
+                                                </span>
+                                            </td>
+                                            <td class="text-left">
+                                                <a href="pages/scenario-detail/scenario_37.html"
+                                                   style="word-break: break-all">Validar opção &#39;PULAR&#39; e &quot;NEGAR&quot; no alerta</a>
+                                            </td>
+                                            <td class="text-center small" data-order="2021-04-19T20:26:23.498Z">
+                                                2021-04-19<br>17:26:23
+                                            </td>
+                                            <td class="text-right small"
+                                                data-order="28.765.000.000">
+                                                <span class="nobr">0m 28s 765ms</span>
+                                            </td>
+                                        </tr>
+                                        <tr class="table-row-passed">
+                                            <td class="text-left">
+                                                <span data-toggle="tooltip" title="  Eu como usuario do App Meu Alelo
+  Desejo acessar a funcionalidade de pede pronto | file:src/test/resources/io/cucumber/Regressivo/pedePronto.feature">
+                                                    <a href="pages/feature-scenarios/feature_9.html">Pede Pronto</a>
+                                                </span>
+                                            </td>
+                                            <td class="text-left">
+                                                <a href="pages/scenario-detail/scenario_38.html"
+                                                   style="word-break: break-all">Validar opção &quot;PERMITIR&quot; E &quot;PERMITIR DURANTE O USO DO APP&quot; do alerta</a>
+                                            </td>
+                                            <td class="text-center small" data-order="2021-04-19T20:26:52.270Z">
+                                                2021-04-19<br>17:26:52
+                                            </td>
+                                            <td class="text-right small"
+                                                data-order="29.177.000.000">
+                                                <span class="nobr">0m 29s 177ms</span>
+                                            </td>
+                                        </tr>
+                                        <tr class="table-row-passed">
+                                            <td class="text-left">
+                                                <span data-toggle="tooltip" title="  Eu como usuario do App Meu Alelo
+  Desejo acessar a funcionalidade de pede pronto | file:src/test/resources/io/cucumber/Regressivo/pedePronto.feature">
+                                                    <a href="pages/feature-scenarios/feature_9.html">Pede Pronto</a>
+                                                </span>
+                                            </td>
+                                            <td class="text-left">
+                                                <a href="pages/scenario-detail/scenario_39.html"
+                                                   style="word-break: break-all">Validar opção &quot;PERMITIR&quot; e &quot;NEGAR E NÃO PERGUNTAR DE NOVO&quot; do alerta</a>
+                                            </td>
+                                            <td class="text-center small" data-order="2021-04-19T20:27:21.455Z">
+                                                2021-04-19<br>17:27:21
+                                            </td>
+                                            <td class="text-right small"
+                                                data-order="39.543.000.000">
+                                                <span class="nobr">0m 39s 543ms</span>
+                                            </td>
+                                        </tr>
+                                        <tr class="table-row-passed">
+                                            <td class="text-left">
+                                                <span data-toggle="tooltip" title="  Eu como usuario do App Meu Alelo
+  Desejo acessar a funcionalidade de pede pronto | file:src/test/resources/io/cucumber/Regressivo/pedePronto.feature">
+                                                    <a href="pages/feature-scenarios/feature_9.html">Pede Pronto</a>
+                                                </span>
+                                            </td>
+                                            <td class="text-left">
+                                                <a href="pages/scenario-detail/scenario_40.html"
+                                                   style="word-break: break-all">Validar opção &quot;CONFIGURAÇÕES&quot; na função Permitir Localização</a>
+                                            </td>
+                                            <td class="text-center small" data-order="2021-04-19T20:28:01.006Z">
+                                                2021-04-19<br>17:28:01
+                                            </td>
+                                            <td class="text-right small"
+                                                data-order="47.077.000.000">
+                                                <span class="nobr">0m 47s 077ms</span>
+                                            </td>
+                                        </tr>
+
+
+                                        <tr class="table-row-passed">
+                                            <td class="text-left">
+                                                <span data-toggle="tooltip" title="file:src/test/resources/io/cucumber/Regressivo/redeMobilidade.feature">
+                                                    <a href="pages/feature-scenarios/feature_11.html">Rede Mobilidade</a>
+                                                </span>
+                                            </td>
+                                            <td class="text-left">
+                                                <a href="pages/scenario-detail/scenario_50.html"
+                                                   style="word-break: break-all">Validar direcionamento do botao Rede Mobilidade Tela Home</a>
+                                            </td>
+                                            <td class="text-center small" data-order="2021-04-19T20:37:25.550Z">
+                                                2021-04-19<br>17:37:25
+                                            </td>
+                                            <td class="text-right small"
+                                                data-order="26.062.000.000">
+                                                <span class="nobr">0m 26s 062ms</span>
+                                            </td>
+                                        </tr>
+                                        <tr class="table-row-passed">
+                                            <td class="text-left">
+                                                <span data-toggle="tooltip" title="file:src/test/resources/io/cucumber/Regressivo/redeMobilidade.feature">
+                                                    <a href="pages/feature-scenarios/feature_11.html">Rede Mobilidade</a>
+                                                </span>
+                                            </td>
+                                            <td class="text-left">
+                                                <a href="pages/scenario-detail/scenario_51.html"
+                                                   style="word-break: break-all">Validar direcionamento aplicativos que aceitan WEB Alelo</a>
+                                            </td>
+                                            <td class="text-center small" data-order="2021-04-19T20:37:51.620Z">
+                                                2021-04-19<br>17:37:51
+                                            </td>
+                                            <td class="text-right small"
+                                                data-order="29.735.000.000">
+                                                <span class="nobr">0m 29s 735ms</span>
+                                            </td>
+                                        </tr>
+                                        <tr class="table-row-passed">
+                                            <td class="text-left">
+                                                <span data-toggle="tooltip" title="file:src/test/resources/io/cucumber/Regressivo/redeMobilidade.feature">
+                                                    <a href="pages/feature-scenarios/feature_11.html">Rede Mobilidade</a>
+                                                </span>
+                                            </td>
+                                            <td class="text-left">
+                                                <a href="pages/scenario-detail/scenario_52.html"
+                                                   style="word-break: break-all">Validar direcionamento aplicativos que aceitam Menu</a>
+                                            </td>
+                                            <td class="text-center small" data-order="2021-04-19T20:38:21.363Z">
+                                                2021-04-19<br>17:38:21
+                                            </td>
+                                            <td class="text-right small"
+                                                data-order="27.884.000.000">
+                                                <span class="nobr">0m 27s 884ms</span>
+                                            </td>
+                                        </tr>
+                                        <tr class="table-row-passed">
+                                            <td class="text-left">
+                                                <span data-toggle="tooltip" title="file:src/test/resources/io/cucumber/Regressivo/redeMobilidade.feature">
+                                                    <a href="pages/feature-scenarios/feature_11.html">Rede Mobilidade</a>
+                                                </span>
+                                            </td>
+                                            <td class="text-left">
+                                                <a href="pages/scenario-detail/scenario_53.html"
+                                                   style="word-break: break-all">Validar direcionamento aplicativos que aceitam botão voltar</a>
+                                            </td>
+                                            <td class="text-center small" data-order="2021-04-19T20:38:49.254Z">
+                                                2021-04-19<br>17:38:49
+                                            </td>
+                                            <td class="text-right small"
+                                                data-order="27.930.000.000">
+                                                <span class="nobr">0m 27s 930ms</span>
+                                            </td>
+                                        </tr>
+                                        <tr class="table-row-passed">
+                                            <td class="text-left">
+                                                <span data-toggle="tooltip" title="file:src/test/resources/io/cucumber/Regressivo/redeMobilidade.feature">
+                                                    <a href="pages/feature-scenarios/feature_11.html">Rede Mobilidade</a>
+                                                </span>
+                                            </td>
+                                            <td class="text-left">
+                                                <a href="pages/scenario-detail/scenario_54.html"
+                                                   style="word-break: break-all">Validar direcionamento do link de todos os parceiros</a>
+                                            </td>
+                                            <td class="text-center small" data-order="2021-04-19T20:39:17.192Z">
+                                                2021-04-19<br>17:39:17
+                                            </td>
+                                            <td class="text-right small"
+                                                data-order="27.493.000.000">
+                                                <span class="nobr">0m 27s 493ms</span>
+                                            </td>
+                                        </tr>
+
+                                        <tr class="table-row-passed">
+                                            <td class="text-left">
+                                                <span data-toggle="tooltip" title="file:src/test/resources/io/cucumber/Regressivo/saldoCartoes.feature">
+                                                    <a href="pages/feature-scenarios/feature_12.html">Visualizar saldo dos cartões</a>
+                                                </span>
+                                            </td>
+                                            <td class="text-left">
+                                                <a href="pages/scenario-detail/scenario_55.html"
+                                                   style="word-break: break-all">Visualizar o saldo de todos cartões</a>
+                                            </td>
+                                            <td class="text-center small" data-order="2021-04-19T20:39:44.692Z">
+                                                2021-04-19<br>17:39:44
+                                            </td>
+                                            <td class="text-right small"
+                                                data-order="217.553.000.000">
+                                                <span class="nobr">3m 37s 553ms</span>
+                                            </td>
+                                        </tr>
+
+                                        <tr class="table-row-passed">
+                                            <td class="text-left">
+                                                <span data-toggle="tooltip" title="  Eu como usuario
+  Quero validar a troca de senha transacional | file:src/test/resources/io/cucumber/Regressivo/trocaDeSenhaTransacional.feature">
+                                                    <a href="pages/feature-scenarios/feature_13.html">Troca de senha transacional</a>
+                                                </span>
+                                            </td>
+                                            <td class="text-left">
+                                                <a href="pages/scenario-detail/scenario_56.html"
+                                                   style="word-break: break-all">Validar a troca de senha, via aplicativo STATUS BB Alimentacao</a>
+                                            </td>
+                                            <td class="text-center small" data-order="2021-04-19T20:43:22.253Z">
+                                                2021-04-19<br>17:43:22
+                                            </td>
+                                            <td class="text-right small"
+                                                data-order="51.824.000.000">
+                                                <span class="nobr">0m 51s 824ms</span>
+                                            </td>
+                                        </tr>
+                                        <tr class="table-row-passed">
+                                            <td class="text-left">
+                                                <span data-toggle="tooltip" title="  Eu como usuario
+  Quero validar a troca de senha transacional | file:src/test/resources/io/cucumber/Regressivo/trocaDeSenhaTransacional.feature">
+                                                    <a href="pages/feature-scenarios/feature_13.html">Troca de senha transacional</a>
+                                                </span>
+                                            </td>
+                                            <td class="text-left">
+                                                <a href="pages/scenario-detail/scenario_57.html"
+                                                   style="word-break: break-all">Validar a troca de senha, via aplicativo STATUS BB Refeicao</a>
+                                            </td>
+                                            <td class="text-center small" data-order="2021-04-19T20:44:14.085Z">
+                                                2021-04-19<br>17:44:14
+                                            </td>
+                                            <td class="text-right small"
+                                                data-order="47.783.000.000">
+                                                <span class="nobr">0m 47s 783ms</span>
+                                            </td>
+                                        </tr>
+                                        <tr class="table-row-passed">
+                                            <td class="text-left">
+                                                <span data-toggle="tooltip" title="  Eu como usuario
+  Quero validar a troca de senha transacional | file:src/test/resources/io/cucumber/Regressivo/trocaDeSenhaTransacional.feature">
+                                                    <a href="pages/feature-scenarios/feature_13.html">Troca de senha transacional</a>
+                                                </span>
+                                            </td>
+                                            <td class="text-left">
+                                                <a href="pages/scenario-detail/scenario_58.html"
+                                                   style="word-break: break-all">Validar a troca de senha, via aplicativo STATUS BB Multibeneficios</a>
+                                            </td>
+                                            <td class="text-center small" data-order="2021-04-19T20:45:01.876Z">
+                                                2021-04-19<br>17:45:01
+                                            </td>
+                                            <td class="text-right small"
+                                                data-order="49.508.000.000">
+                                                <span class="nobr">0m 49s 508ms</span>
+                                            </td>
+                                        </tr>
+                                        <tr class="table-row-passed">
+                                            <td class="text-left">
+                                                <span data-toggle="tooltip" title="  Eu como usuario
+  Quero validar a troca de senha transacional | file:src/test/resources/io/cucumber/Regressivo/trocaDeSenhaTransacional.feature">
+                                                    <a href="pages/feature-scenarios/feature_13.html">Troca de senha transacional</a>
+                                                </span>
+                                            </td>
+                                            <td class="text-left">
+                                                <a href="pages/scenario-detail/scenario_59.html"
+                                                   style="word-break: break-all">Validar a troca de senha, via aplicativo STATUS BB Auto</a>
+                                            </td>
+                                            <td class="text-center small" data-order="2021-04-19T20:45:51.392Z">
+                                                2021-04-19<br>17:45:51
+                                            </td>
+                                            <td class="text-right small"
+                                                data-order="47.647.000.000">
+                                                <span class="nobr">0m 47s 647ms</span>
+                                            </td>
+                                        </tr>
+                                        <tr class="table-row-passed">
+                                            <td class="text-left">
+                                                <span data-toggle="tooltip" title="  Eu como usuario
+  Quero validar a troca de senha transacional | file:src/test/resources/io/cucumber/Regressivo/trocaDeSenhaTransacional.feature">
+                                                    <a href="pages/feature-scenarios/feature_13.html">Troca de senha transacional</a>
+                                                </span>
+                                            </td>
+                                            <td class="text-left">
+                                                <a href="pages/scenario-detail/scenario_60.html"
+                                                   style="word-break: break-all">Validar a troca de senha, via aplicativo STATUS BB Mobilidade</a>
+                                            </td>
+                                            <td class="text-center small" data-order="2021-04-19T20:46:39.047Z">
+                                                2021-04-19<br>17:46:39
+                                            </td>
+                                            <td class="text-right small"
+                                                data-order="66.760.000.000">
+                                                <span class="nobr">1m 06s 760ms</span>
+                                            </td>
+                                        </tr>
+                                        <tr class="table-row-passed">
+                                            <td class="text-left">
+                                                <span data-toggle="tooltip" title="  Eu como usuario
+  Quero validar a troca de senha transacional | file:src/test/resources/io/cucumber/Regressivo/trocaDeSenhaTransacional.feature">
+                                                    <a href="pages/feature-scenarios/feature_13.html">Troca de senha transacional</a>
+                                                </span>
+                                            </td>
+                                            <td class="text-left">
+                                                <a href="pages/scenario-detail/scenario_61.html"
+                                                   style="word-break: break-all">Validar a troca de senha, via aplicativo STATUS BB Pgto</a>
+                                            </td>
+                                            <td class="text-center small" data-order="2021-04-19T20:47:45.815Z">
+                                                2021-04-19<br>17:47:45
+                                            </td>
+                                            <td class="text-right small"
+                                                data-order="47.234.000.000">
+                                                <span class="nobr">0m 47s 234ms</span>
+                                            </td>
+                                        </tr>
+                                        <tr class="table-row-passed">
+                                            <td class="text-left">
+                                                <span data-toggle="tooltip" title="  Eu como usuario
+  Quero validar a troca de senha transacional | file:src/test/resources/io/cucumber/Regressivo/trocaDeSenhaTransacional.feature">
+                                                    <a href="pages/feature-scenarios/feature_13.html">Troca de senha transacional</a>
+                                                </span>
+                                            </td>
+                                            <td class="text-left">
+                                                <a href="pages/scenario-detail/scenario_63.html"
+                                                   style="word-break: break-all">Validar erro quando as senhas nao conferem</a>
+                                            </td>
+                                            <td class="text-center small" data-order="2021-04-19T20:49:44.917Z">
+                                                2021-04-19<br>17:49:44
+                                            </td>
+                                            <td class="text-right small"
+                                                data-order="30.825.000.000">
+                                                <span class="nobr">0m 30s 825ms</span>
+                                            </td>
+                                        </tr>
+                                        <tr class="table-row-passed">
+                                            <td class="text-left">
+                                                <span data-toggle="tooltip" title="  Eu como usuario
+  Quero validar a troca de senha transacional | file:src/test/resources/io/cucumber/Regressivo/trocaDeSenhaTransacional.feature">
+                                                    <a href="pages/feature-scenarios/feature_13.html">Troca de senha transacional</a>
+                                                </span>
+                                            </td>
+                                            <td class="text-left">
+                                                <a href="pages/scenario-detail/scenario_64.html"
+                                                   style="word-break: break-all">Validar caracteres invalidos</a>
+                                            </td>
+                                            <td class="text-center small" data-order="2021-04-19T20:50:15.750Z">
+                                                2021-04-19<br>17:50:15
+                                            </td>
+                                            <td class="text-right small"
+                                                data-order="31.436.000.000">
+                                                <span class="nobr">0m 31s 436ms</span>
+                                            </td>
+                                        </tr>
+
+
+                                        <tr class="table-row-passed">
+                                            <td class="text-left">
+                                                <span data-toggle="tooltip" title="  Eu como usuario
+  Quero assim que entrar no app, visualizar que há uma nova versão | file:src/test/resources/io/cucumber/Regressivo/versionNotification.feature">
+                                                    <a href="pages/feature-scenarios/feature_15.html">Aviso de atualização</a>
+                                                </span>
+                                            </td>
+                                            <td class="text-left">
+                                                <a href="pages/scenario-detail/scenario_74.html"
+                                                   style="word-break: break-all">Verificar notifcacao de nova versão e selecionar &quot;agora não&quot;</a>
+                                            </td>
+                                            <td class="text-center small" data-order="2021-04-19T20:54:40.341Z">
+                                                2021-04-19<br>17:54:40
+                                            </td>
+                                            <td class="text-right small"
+                                                data-order="59.625.000.000">
+                                                <span class="nobr">0m 59s 625ms</span>
+                                            </td>
+                                        </tr>
+                                        <tr class="table-row-passed">
+                                            <td class="text-left">
+                                                <span data-toggle="tooltip" title="  Eu como usuario
+  Quero assim que entrar no app, visualizar que há uma nova versão | file:src/test/resources/io/cucumber/Regressivo/versionNotification.feature">
+                                                    <a href="pages/feature-scenarios/feature_15.html">Aviso de atualização</a>
+                                                </span>
+                                            </td>
+                                            <td class="text-left">
+                                                <a href="pages/scenario-detail/scenario_75.html"
+                                                   style="word-break: break-all">Verificar notifcacao de nova versão e selecionar &quot;atualizar&quot;</a>
+                                            </td>
+                                            <td class="text-center small" data-order="2021-04-19T20:55:39.974Z">
+                                                2021-04-19<br>17:55:39
+                                            </td>
+                                            <td class="text-right small"
+                                                data-order="20.615.000.000">
+                                                <span class="nobr">0m 20s 615ms</span>
+                                            </td>
+                                        </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+    </main>
+
+<footer class="footer navbar-dark">
+    <div class="container-fluid">
+        <span>Cluecumber Report Plugin version 2.3.4 - Report generated on 2021-04-19 17:56:08.</span>
+    </div>
+</footer>    </body>
+    </html>
+
